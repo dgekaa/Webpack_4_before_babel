@@ -1,5 +1,6 @@
 
 let path = require("path"); 
+let ExtractTextPlugin = require("extract-text-webpack-plugin"); 
 
 let conf = {
 	entry : "./src/index.js",
@@ -10,7 +11,34 @@ let conf = {
 	},
 	devServer : {
 		overlay : true
-	}
+	},
+	module : {
+		rules : [
+			{
+				test : /\.js$/,
+				loader : "babel-loader",
+				// exclude : "/node_modules/"
+			},
+			{
+				test : /\.css$/,
+				use : ExtractTextPlugin.extract({
+					// fallback : "style-loader",
+					use : "css-loader"
+				})
+			}
+		]
+	},
+	plugins : [
+		new ExtractTextPlugin("styles.css"),
+	]	
 };
 
-module.exports = conf;
+module.exports = (env, options) => {
+	let production = options.mode === "production";
+
+	conf.devtool = production
+						? false
+						: "eval-sourcemap";
+
+	return conf;
+}	
